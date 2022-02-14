@@ -1,0 +1,121 @@
+title input
+PDP permeation
+end of title input
+$============================
+main input
+$============================
+dspcnme=h,end
+espcnme=h2,end
+segnds=52,end
+nbrencl=2,end
+end of main input
+$============================
+enclosure input
+$============================
+start bdry,1,end   $ QUEST side
+  etemp=const,573.0,end
+  esppres=h2,const,0.,end
+start bdry,2,end   $ PDP pumps
+  etemp=const,573.0,end
+  esppres=h2,const,0.0,end
+end of enclosure input
+$============================
+thermal input
+start thermseg,end
+  delx=0.0,10*1.0e-9,10*1.0e-8,10*1.0e-7,20*9.445e-7,0.0,end $total thickness 20 mkm 
+  tempd=52*570.0,end $initial temperature distribution between the nodes
+  tcon=const,71.8,end $thermal conductivity, W/m/K
+  rhocp=const,2.9e3,end $Thermal capacity (J/m3/K)
+  hsrc=const,0.0,srcpf,52*0.0,end $Local heat generation, W/m3
+  htrbcl=stemp,equ,1,end $stemp - fixed temperature boundary1
+  htrbcr=stemp,equ,1,end  $stemp - fixed temperature boundary2
+end of thermal input
+$============================
+$============================
+diffusion input
+start diffseg,end
+nbrden=6.7e28,end $ density
+concd=h,52*0.0,end
+dcoef=h ,equ,2,end
+qstrdr=h,const,0.0,end
+srcsd=h,tabl,2,srcpf,0.0,1.0,50*0.0,end
+$enc1
+difbcl=ratedep,encl,1,spc,h,exch,h2,ksubd,const,2.200e+018,h,ksubr,equ,3,end
+$enc2
+difbcr=ratedep,encl,2,spc,h,exch,h2,ksubd,const,4.54e10,h,ksubr,equ,4,end
+surfa=0.05,end
+end of diffusion input
+$============================
+$============================
+equation input
+$ (1)temperature equation
+$eq1
+y=573.0+0.0*time,end
+$ (2)D coeff m2s-1
+$eq2
+y=2.9e-7*exp(-0.23*1.6e-19/(1.38e-23*temp)),end
+$ (3)ku m4s-1
+$eq3
+y=1.5e-27*exp(-0.480*1.6e-19/(1.38e-23*temp)),end
+$ (4)kd m4s-1
+$eq4
+y=1.5e-27*exp(-0.480*1.6e-19/(1.38e-23*temp))/8.000,end
+end of equation input
+$
+table input
+$ (1) H flux, H/m2s (like open/close)
+0.000,1.000e+017
+1.000,4.000e+017
+2.000,7.000e+017
+3.000,1.000e+018
+10.000,3.000e+017
+20.000,3.000e+018
+100.000,3.000e+018
+200.000,3.000e+018
+1000.000,5.000e+017
+1500.000,0.000e+000
+1500.100,0.000e+000,2000.0,0.0,end
+$
+$ (2) H2 pressure, Pa (like open/close)
+$pressure
+0.0,0.04
+0.44,1.04
+1.5,0.08
+2.1,0.1
+3.0,0.2
+10.0,0.6
+15.0,0.6
+100.0,0.6
+100.1,0.9
+200.0,0.9
+200.1,0.0
+600.0,0.0,end
+$pressure
+end of table input
+$============================
+control input
+$============================
+time=0.0,end            $start of computations, sec
+tstep=0.100,end            $time step, sec
+timend=600.0,end        $end of computations, sec
+nprint=1000,end            $number of tstep cycles skipped between output listing
+itermx=1000,end            $the number of iterations that can be performed before the program stops or takes other actions
+delcmx=1.0e-9,end        $the convergence limit, treated in most cases as a value fraction, beyond which the solution is deemed to converge
+bump=1.0e-2,end
+bound=2.0,end
+omega=1.3,end
+damp=0.8,end
+end of control input
+plot input
+$============================
+nplot=10,end
+plotseg=1,end
+plotencl=1,2,end
+dname=h,end
+ename=h2,end
+dplot=sflux,end
+eplot=end
+end of plot input
+$dplot=sconc,moblinv,sflux,trapinv,end
+$
+end of data
