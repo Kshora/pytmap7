@@ -4,7 +4,7 @@
 
 
 
-![cmd1](.\img\cmd1.png)
+![cmd1](./img/cmd1.png)
 
 g77 is not recognized, but it is in TMAP7/bin. 
 
