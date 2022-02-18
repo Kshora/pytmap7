@@ -1,8 +1,6 @@
-import time as tm
 import subprocess
 import os
 import numpy as np
-from nt import times
 
 t7outputfile = 'C:\TMAP7\Origin.plt'
 outfile = 'C:\\TMAP7\\Origin.inp'
@@ -14,28 +12,6 @@ infile = 'template.inp'
 pfile = 'pirani.dat'
 testfit = "Data/testfit.txt"
 testfitgoal = "Data/testfitgoal.txt"
-
-def min_sec(t):
-    def s(tt):
-        if int(tt/10.) < 1:
-            return "0%d"%(int(tt))
-        else:
-            return "%d"%(int(tt))
-    hh,mm,ss = 0,0,0
-    if int(t/60.) > 59:
-        hh = int(t/3600.)
-        mm = int((t - hh*3600)/60.)
-        ss = int((t - hh*3600 - mm*60))
-    else:
-        mm = int(t/60.)
-        ss = t - mm*60
-    return "%s:%s:%s"%(s(hh),s(mm),s(ss))
-
-def ltexp(exp,decplace = 1):
-    ''' converts 1e29 float to the scientific notation LaTeX string '''
-    exponent = int(np.floor(np.log10(abs(exp))))
-    coeff = round(exp / np.float(10**exponent), decplace)
-    return r"%s\times 10^{%d}"%(coeff,exponent)
 
 def writePirani(waveform, pfile = pfile):
     ''' Output to txt T7 incident flux '''
