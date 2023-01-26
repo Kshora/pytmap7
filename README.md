@@ -1,8 +1,16 @@
 # Python wrapper for TMAP7
 
-## Setup your environment
+## Troubleshooting
+Getting compiling errors. But our TMAP7 version is precompiled for windows, so there should be no need to run a compiler. 
+
+What to try:
+-  Remove [Cygwin](https://www.cygwin.com/) or [MinGW](https://www.mingw-w64.org/) from system `Path`.
+- Make sure thate compilers are provided in `TMAP7/bin/` as executable files. Must use those instead of other compilers, if there are any in the `Path`.
+- Call `*.bat` file from `TMAP7` location, set `cwd` to `TMAP7` path, i.e. `C:\TMAP7`.
 
 
+
+### Setup your environment
 
 ![cmd1](./img/cmd1.png)
 
@@ -10,7 +18,7 @@ g77 is not recognized, but it is in TMAP7/bin.
 
 
 
-## Use  proper batch files to run
+### Use proper batch files to run
 
 run this batch to execute TMAP7 run:
 
