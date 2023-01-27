@@ -38,9 +38,9 @@ class TmapTask:
         self.infile = os.path.join(self.basepath, self.infile)
         self.pfile = os.path.join(self.basepath, self.pfile)
 
-    def prep_parameters(self, ksubd, ku, kd, tstep, template):
+    def prep_parameters(self, ksubd, ku, kd, temp, tstep, template):
         """Populate T7 parameters"""
-        self.parameters = {"ksubd": ksubd, "ku": ku, "kd": kd, "tstep": tstep}
+        self.parameters = {"ksubd": ksubd, "ku": ku, "kd": kd, "temp": temp, "tstep": tstep}
         self.template = template
 
     def run(self):
@@ -81,10 +81,11 @@ class TmapTask:
         looks into template for my keywords (commented for T7) and inserts 
         given values.
         """
-        ksubd = self.parameters["ksubd"]
-        ku = self.parameters["ku"]
-        kd = self.parameters["kd"]
-        tstep = self.parameters["tstep"]
+        ksubd = float(self.parameters["ksubd"])
+        ku = float(self.parameters["ku"])
+        kd = float(self.parameters["kd"])
+        temp = float(self.parameters["temp"])
+        tstep = float(self.parameters["tstep"])
 
         if not silent:
             print(f"template:\t{self.template}\ninstructions\t{self.t7_instructions}")
@@ -92,7 +93,7 @@ class TmapTask:
             with open(self.t7_instructions, "w") as out:
                 k, T, j, jt = 0, 0, 0, -1
                 stag = ""
-                tag = ["$enc1", "$enc2"]
+                tag = ["$enc1", "$enc2","$eq2"]
                 for line in f:
                     if line.startswith("$pressure"):
                         line = line
@@ -110,6 +111,8 @@ class TmapTask:
                                 out.write("%.4f,0.0,end\n" % T)
                     else:
                         if k == 2 or k == 0:
+                            if line.startswith("  etemp"):
+                                line = f"  etemp=const,{temp},end\n"
                             if line.startswith("timend"):
                                 line = "timend=%.4f,end        $end of computations, sec\n" % T
                             if line.startswith("tstep"):
@@ -127,10 +130,15 @@ class TmapTask:
                                     line = "difbcr=ratedep,encl,2,spc,h,exch,h2\nksubd,const,{:.2e},h,ksubr,const,{:.2e},end \n".format(
                                         ksubd, kd
                                     )
+                                if stag == tag[2]:
+                                    line = f"y={temp}+0.0*time,end\n"
 
                             if line.startswith("$enc2"):
                                 jt = j + 1
                                 stag = tag[1]
+                            if line.startswith("$eq1"):
+                                jt = j + 1
+                                stag = tag[2]
                             out.write(line)
                     j += 1
 
