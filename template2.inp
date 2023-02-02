@@ -1,5 +1,5 @@
 title input
-PDP permeation for PdCu
+PDP permeation for Nickel , have to be fixed
 end of title input
 $============================
 main input
@@ -24,8 +24,8 @@ thermal input
 start thermseg,end
   delx=0.0,10*1.0e-9,10*1.0e-8,10*1.0e-7,20*9.445e-7,0.0,end $total thickness 20 mkm 
   tempd=52*570.0,end $initial temperature distribution between the nodes
-  tcon=const,71.8,end $thermal conductivity, W/m/K
-  rhocp=const,2.9e3,end $Thermal capacity (J/m3/K)
+  tcon=const,90.7,end $thermal conductivity, W/m/K
+  rhocp=const,3.92e3,end $Thermal capacity (J/m3/K)
   hsrc=const,0.0,srcpf,52*0.0,end $Local heat generation, W/m3
   htrbcl=stemp,equ,1,end $stemp - fixed temperature boundary1
   htrbcr=stemp,equ,1,end  $stemp - fixed temperature boundary2
@@ -35,8 +35,8 @@ $============================
 diffusion input
 start diffseg,end
 nbrden=6.7e28,end $ density
-concd=h,52*0.0,end $ initail consentration in each segments
-dcoef=h ,equ,2,end 
+concd=h,52*0.0,end
+dcoef=h ,equ,2,end
 qstrdr=h,const,0.0,end
 srcsd=h,tabl,2,srcpf,0.0,1.0,50*0.0,end
 $enc1
@@ -56,10 +56,10 @@ $eq2
 y=2.9e-7*exp(-0.23*1.6e-19/(1.38e-23*temp)),end
 $ (3)ku m4s-1
 $eq3
-y=1.5e-27*exp(-0.480*1.6e-19/(1.38e-23*temp)),end
+y=4.5e-29*exp(-0.08*1.6e-19/(1.38e-23*temp)),end
 $ (4)kd m4s-1
 $eq4
-y=1.5e-27*exp(-0.480*1.6e-19/(1.38e-23*temp))/8.000,end
+y=1.2e-26*exp(-0.34*1.6e-19/(1.38e-23*temp)),end
 end of equation input
 $
 table input

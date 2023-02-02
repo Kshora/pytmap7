@@ -38,9 +38,9 @@ class TmapTask:
         self.infile = os.path.join(self.basepath, self.infile)
         self.pfile = os.path.join(self.basepath, self.pfile)
 
-    def prep_parameters(self, ksubd, ku, kd, temp, tstep, template):
+    def prep_parameters(self, parameters,template):
         """Populate T7 parameters"""
-        self.parameters = {"ksubd": ksubd, "ku": ku, "kd": kd, "temp": temp, "tstep": tstep}
+        self.parameters = parameters
         self.template = template
 
     def run(self):
@@ -81,11 +81,12 @@ class TmapTask:
         looks into template for my keywords (commented for T7) and inserts 
         given values.
         """
-        ksubd = float(self.parameters["ksubd"])
-        ku = float(self.parameters["ku"])
-        kd = float(self.parameters["kd"])
-        temp = float(self.parameters["temp"])
-        tstep = float(self.parameters["tstep"])
+        ksubd = float(self.parameters["ksubd"]) if self.parameters["ksubd"]!=False else False
+        ku = float(self.parameters["ku"]) if self.parameters["ku"]!=False else False
+        kd = float(self.parameters["kd"]) if self.parameters["kd"]!=False else False
+        dif = float(self.parameters["dif"]) if self.parameters["dif"]!=False else False
+        temp = float(self.parameters["temp"]) if self.parameters["temp"]!=False else False
+        tstep = float(self.parameters["tstep"]) if self.parameters["tstep"]!=False else False
 
         if not silent:
             print(f"template:\t{self.template}\ninstructions\t{self.t7_instructions}")
@@ -93,7 +94,7 @@ class TmapTask:
             with open(self.t7_instructions, "w") as out:
                 k, T, j, jt = 0, 0, 0, -1
                 stag = ""
-                tag = ["$enc1", "$enc2","$eq2"]
+                tag = ["$enc1", "$enc2","$eq1","$eq2"]
                 for line in f:
                     if line.startswith("$pressure"):
                         line = line
@@ -111,8 +112,10 @@ class TmapTask:
                                 out.write("%.4f,0.0,end\n" % T)
                     else:
                         if k == 2 or k == 0:
-                            if line.startswith("  etemp"):
+                            if line.startswith("  etemp") and temp!=False:
                                 line = f"  etemp=const,{temp},end\n"
+                            if line.startswith("  tempd") and temp!=False:
+                                line = f"  tempd=52*{temp},end $initial temperature distribution between the nodes\n"
                             if line.startswith("timend"):
                                 line = "timend=%.4f,end        $end of computations, sec\n" % T
                             if line.startswith("tstep"):
@@ -122,23 +125,41 @@ class TmapTask:
                                 stag = tag[0]
                             if j == jt:
                                 if stag == tag[0]:
-                                    line = "difbcl=ratedep,encl,1,spc,h,exch,h2\nksubd,const,{:.2e},h,ksubr,const,{:.2e},end\n".format(
-                                        ksubd, ku
-                                    )
+                                    if ku != False:
+                                        line = "difbcl=ratedep,encl,1,spc,h,exch,h2\nksubd,const,{:.2e},h,ksubr,const,{:.2e},end\n".format(
+                                            ksubd, ku
+                                        )
+                                    else:
+                                        line = "difbcl=ratedep,encl,1,spc,h,exch,h2\nksubd,const,{:.2e},h,ksubr,equ,3,end\n".format(
+                                            ksubd
+                                        )
 
                                 if stag == tag[1]:
-                                    line = "difbcr=ratedep,encl,2,spc,h,exch,h2\nksubd,const,{:.2e},h,ksubr,const,{:.2e},end \n".format(
-                                        ksubd, kd
-                                    )
+                                    if kd != False:
+                                        line = "difbcr=ratedep,encl,2,spc,h,exch,h2\nksubd,const,{:.2e},h,ksubr,const,{:.2e},end \n".format(
+                                            ksubd, kd
+                                        )
+                                    else:
+                                        line = "difbcr=ratedep,encl,2,spc,h,exch,h2\nksubd,const,{:.2e},h,ksubr,equ,4,end \n".format(
+                                            ksubd
+                                        )                                
                                 if stag == tag[2]:
                                     line = f"y={temp}+0.0*time,end\n"
+                                if stag == tag[3]:
+                                    line = f"y={dif},end\n"
 
                             if line.startswith("$enc2"):
                                 jt = j + 1
                                 stag = tag[1]
-                            if line.startswith("$eq1"):
+                            if line.startswith("$eq1") and temp!=False:
                                 jt = j + 1
                                 stag = tag[2]
+                            if line.startswith("$eq2") and dif != False:
+                                jt = j + 1
+                                stag = tag[3]
+                                
+
+
                             out.write(line)
                     j += 1
 
